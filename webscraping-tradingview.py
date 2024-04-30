@@ -1,35 +1,28 @@
-from urllib.request import urlopen, Request
+import requests
 from bs4 import BeautifulSoup
 
+webpage_url = "https://www.webull.com/quote/us/gainers"
+browser_agent = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.3'}
+website_request = requests.get(webpage_url, headers=browser_agent)
+website_content = website_request.content
 
+soup_obj = BeautifulSoup(website_content, 'html.parser')
+print(soup_obj.title.text)
 
+stock_table_cells = soup_obj.findAll("div", attrs={"class": "table-cell"})
+print(stock_table_cells[0])
+print()
+print(stock_table_cells[1].text)
 
-##############FOR MACS THAT HAVE ERRORS LOOK HERE################
-## https://timonweb.com/tutorials/fixing-certificate_verify_failed-error-when-trying-requests_html-out-on-mac/
-
-############## ALTERNATIVELY IF PASSWORD IS AN ISSUE FOR MAC USERS ########################
-##  > cd "/Applications/Python 3.6/"
-##  > sudo "./Install Certificates.command"
-
-
-url = 'https://www.tradingview.com/markets/stocks-usa/market-movers-gainers/'
-headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.3'}
-
-		
-
-
-
-
-
-
-#SOME USEFUL FUNCTIONS IN BEAUTIFULSOUP
-#-----------------------------------------------#
-# find(tag, attributes, recursive, text, keywords)
-# findAll(tag, attributes, recursive, text, limit, keywords)
-
-#Tags: find("h1","h2","h3", etc.)
-#Attributes: find("span", {"class":{"green","red"}})
-#Text: nameList = Objfind(text="the prince")
-#Limit = find with limit of 1
-#keyword: allText = Obj.find(id="title",class="text")
-
+counter = 1
+for _ in range(5):
+    company_name = stock_table_cells[counter].text
+    price_change = float(stock_table_cells[counter + 2].text.strip("+").strip("%"))
+    current_price = float(stock_table_cells[counter + 3].text)
+    previous_price = round(current_price / (1 + (price_change / 100)), 2)
+    print(f"Company Name: {company_name}")
+    print(f"Change: {price_change}%")
+    print(f"Price: {current_price}")
+    print(f"Previous price: {previous_price}")
+    print()
+    counter += 11
